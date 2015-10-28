@@ -3,7 +3,7 @@
 让你的文字随路径轨迹办法！！！
 
 ## 效果图
-![Flipboard playing multiple GIFs](https://github.com/xiepanqi/XPQLabel/blob/master/Dome.gif)
+![Flipboard playing multiple GIFs](https://github.com/xiepanqi/XPQLabel/blob/master/dome.gif)
 (图片较大，加载过程请耐心等待)
 
 ## 类说明
