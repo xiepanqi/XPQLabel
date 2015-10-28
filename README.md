@@ -9,7 +9,7 @@
 ## 类说明
 有2个OC类（XPQLabel/XPQLabelPath）和4个C++类(XPQPath/XPQLine/XPQRound/XPQBezier)。
 ### XPQLabel类
-该类在XPQLabel.h和XPQLabel.m文件中，继承自UIView。主要功能是通过CATextLayer把文本显示出来。
+该类在文本现实视图类，继承自UIView。实现原理是把字符串拆分成字符，然后创建对应数量的CATextLayer，每个CATextLayer中显示一个字符。通过调整CATextLayer来实现各类动画和路径。使用的时候可以通过layerArray属性来访问所有的CATextLayer对象，可以灵活的实现各种想实现的动画。
 ### XPQLabelPath类
 该类主要是把一段路径转换成点坐标数组，让XPQLabel类中的文本根据点坐标位置现实。
 目前路径暂时只支持直线、圆曲线、贝塞尔曲线，暂不支持椭圆曲线（可能后面也支持不了，数学差是硬伤😢）。
