@@ -260,7 +260,12 @@
         if (pointIndex + 1 < pointArray.count) {
             layer.position = pointArray[pointIndex].CGPointValue;
             if (rotate) {
-                CGFloat angle = atan((pointArray[pointIndex + 1].CGPointValue.y - pointArray[pointIndex - 1].CGPointValue.y) / (pointArray[pointIndex + 1].CGPointValue.x - pointArray[pointIndex - 1].CGPointValue.x));
+                CGPoint lastPoint = pointArray[pointIndex - 1].CGPointValue;
+                CGPoint nextPoint = pointArray[pointIndex + 1].CGPointValue;
+                CGFloat angle = atan((nextPoint.y - lastPoint.y) / (nextPoint.x - lastPoint.x));
+                if (nextPoint.x < lastPoint.x) {
+                    angle += M_PI;
+                }
                 layer.transform = CATransform3DRotate(CATransform3DIdentity, angle, 0.0, 0.0, 1.0);
             }
             else {
