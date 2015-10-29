@@ -94,6 +94,15 @@ void XPQPath::getPosTan(double precision, std::vector<XPQPoint> *outBuffer)
     }
 }
 
+XPQPath* XPQPath::clone()
+{
+    XPQPath *clone = new XPQPath(m_endPoint);
+    if (m_nextPath != nullptr) {
+        clone->appendPath(m_nextPath->clone());
+    }
+    return clone;
+}
+
 double XPQPath::getSelfLength()
 {
     return 0.0;
@@ -152,6 +161,15 @@ XPQRound::XPQRound(XPQPoint centrePoint, double angle) : XPQPath(centrePoint)
     m_centrePoint = centrePoint;
 }
 
+XPQRound* XPQRound::clone()
+{
+    XPQRound *clone = new XPQRound(m_centrePoint, m_angle);
+    if (m_nextPath != nullptr) {
+        clone->appendPath(m_nextPath->clone());
+    }
+    return clone;
+}
+
 void XPQRound::setLastPath(XPQPath *lastPath)
 {
     XPQPath::setLastPath(lastPath);
@@ -196,6 +214,15 @@ void XPQRound::getSelfPosTan(double precision, std::vector<XPQPoint> *outBuffer)
 XPQBezier::XPQBezier(XPQPoint anchorPoint, XPQPoint endPoint) : XPQPath(endPoint)
 {
     m_anchorPoint = anchorPoint;
+}
+
+XPQBezier* XPQBezier::clone()
+{
+    XPQBezier *clone = new XPQBezier(m_anchorPoint, m_endPoint);
+    if (m_nextPath != nullptr) {
+        clone->appendPath(m_nextPath->clone());
+    }
+    return clone;
 }
 
 void XPQBezier::setLastPath(XPQPath *lastPath)

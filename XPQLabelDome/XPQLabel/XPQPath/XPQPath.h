@@ -55,6 +55,11 @@ public:
      *  @param outBuffer 接收点坐标的容器。
      */
     void getPosTan(double precision, std::vector<XPQPoint> *outBuffer);
+    /**
+     *  @brief  深度复制一条路径，包括后续路径。不过没有复制前面的路径，所以拷贝出来的对象是起点。
+     *  @return 拷贝出来的对象。
+     */
+    virtual XPQPath *clone();
     
 protected:
     // 子类只需重写下面两个方法就行
@@ -95,6 +100,7 @@ public:
      *  @param angle 路径旋转弧度，2π为一圈，正数为逆时针，负数为顺时针。
      */
     XPQRound(XPQPoint centrePoint, double angle);
+    virtual XPQRound *clone();
     
 protected:
     virtual void setLastPath(XPQPath *lastPath);
@@ -117,6 +123,7 @@ class XPQBezier : public XPQPath
 {
 public:
     XPQBezier(XPQPoint anchorPoint, XPQPoint endPoint);
+    virtual XPQBezier *clone();
     
 protected:
     virtual void setLastPath(XPQPath *lastPath);

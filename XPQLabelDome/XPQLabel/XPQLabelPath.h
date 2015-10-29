@@ -54,4 +54,9 @@
  *  @return 路径点数组。
  */
 -(NSArray<NSValue*> *)getPosTan:(CGFloat)precision;
+/**
+ *  @brief  深度复制一条路径。
+ *  @return 拷贝出来的对象。
+ */
+-(XPQLabelPath *)clone;
 @end

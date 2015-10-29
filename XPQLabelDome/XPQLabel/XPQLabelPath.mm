@@ -69,4 +69,10 @@
     delete outBuffer;
     return array;
 }
+
+-(XPQLabelPath *)clone {
+    XPQLabelPath *clone = [[XPQLabelPath alloc] init];
+    clone->_pathCpp = _pathCpp->clone();
+    return clone;
+}
 @end
