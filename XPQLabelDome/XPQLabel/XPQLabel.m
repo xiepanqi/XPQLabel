@@ -42,7 +42,6 @@
 
 -(void)configSelf {
     _layerMutableArray = [NSMutableArray array];
-    _text = @"";
     _textColor = [UIColor blackColor];
     _font = [UIFont systemFontOfSize:17.0];
     _textHorizontalAlignment = XPQLabelHorizontalAlignmentLeft;
@@ -52,99 +51,23 @@
 #pragma mark -文本操作
 -(void)setText:(NSString *)text {
     _text = text;
-    _attributedText = nil;
-    [self updateLayerArrayCount];
-    [self updateLayerFont];
-    _layerArray = [NSArray arrayWithArray:self.layerMutableArray];
+    NSDictionary *attributes = @{NSFontAttributeName:_font, NSForegroundColorAttributeName:_textColor};
+    self.attributedText = [[NSAttributedString alloc] initWithString:text attributes:attributes];
 }
 
 -(void)setFont:(UIFont *)font {
     _font = font;
-    if (_text) {
-        [self updateLayerFont];
-        _layerArray = [NSArray arrayWithArray:self.layerMutableArray];
+    if (_text != nil) {
+        NSDictionary *attributes = @{NSFontAttributeName:_font, NSForegroundColorAttributeName:_textColor};
+        self.attributedText = [[NSAttributedString alloc] initWithString:_text attributes:attributes];
     }
 }
 
-/// 更新图层个数
--(void)updateLayerArrayCount {
-    NSInteger layerNum = self.layerMutableArray.count;
-    NSInteger textLength = self.text.length;
-    if (layerNum > textLength) {
-        // 移除多余的layer
-        NSRange removeRange = NSMakeRange(textLength, layerNum - textLength);
-        
-        while (layerNum > textLength) {
-            CATextLayer *layer = [self.layerMutableArray objectAtIndex:textLength];
-            [layer removeFromSuperlayer];
-            textLength++;
-        }
-        
-        [self.layerMutableArray removeObjectsInRange:removeRange];
-    }
-    else {
-        // 添加少了的layer
-        while (layerNum < textLength) {
-            CATextLayer *layer = [CATextLayer layer];
-            layer.foregroundColor = self.textColor.CGColor;
-            // 设置这个值让文字更清楚，0.0-1.0会让文字模糊化
-            layer.contentsScale = 2.0;
-            [self.layerMutableArray addObject:layer];
-            [self.layer addSublayer:layer];
-            layerNum++;
-        }
-    }
-    
-    [self updateLayerString];
-}
-
-/// 更新图层上的文字
--(void)updateLayerString {
-    for (int i = 0; i < self.text.length && i < self.layerMutableArray.count; i++) {
-        CATextLayer *layer = [self.layerMutableArray objectAtIndex:i];
-        layer.string = [self.text substringWithRange:NSMakeRange(i, 1)];
-    }
-}
-
-/// 更新图层的字体
--(void)updateLayerFont {
-    for (int i = 0; i < self.layerMutableArray.count; i++) {
-        CATextLayer *layer = [self.layerMutableArray objectAtIndex:i];
-        layer.font = CTFontCreateWithName((CFStringRef)self.font.fontName, 0, NULL);
-        layer.fontSize = self.font.pointSize;
-    }
-    
-    [self updateLayerBounds];
-}
-
-/// 更新图层位置和大小
--(void)updateLayerBounds {
-    NSDictionary *textAttribute = @{NSFontAttributeName:self.font};
-    for (int i = 0; i < self.layerMutableArray.count; i++) {
-        CATextLayer *layer = [self.layerMutableArray objectAtIndex:i];
-        CGSize size = [layer.string sizeWithAttributes:textAttribute];
-        CGRect lastRect = [self layerRectWithIndex:i - 1];
-        CGRect bounds = CGRectMake(lastRect.origin.x + lastRect.size.width,
-                                   lastRect.origin.y + lastRect.size.height - size.height,
-                                   size.width,
-                                   size.height);
-        layer.frame = bounds;
-    }
-}
-
-/**
- *  @brief  通过字符的索引获取对应的layer位置和大小
- *  @param index 索引
- *  @return 位置和大小，如果是index无效则返回CGRectMake(0, 0, 0, 0)
- */
--(CGRect)layerRectWithIndex:(NSInteger)index {
-    if (index < 0 || index >= self.layerMutableArray.count) {
-        CGPoint basePoint = [self basePoint];
-        return CGRectMake(basePoint.x, basePoint.y, 0, 0);
-    }
-    else {
-        CALayer *layer = [self.layerMutableArray objectAtIndex:index];
-        return layer.frame;
+-(void)setTextColor:(UIColor *)textColor {
+    _textColor = textColor;
+    if (_text != nil) {
+        NSDictionary *attributes = @{NSFontAttributeName:_font, NSForegroundColorAttributeName:_textColor};
+        self.attributedText = [[NSAttributedString alloc] initWithString:_text attributes:attributes];
     }
 }
 
@@ -152,12 +75,12 @@
 -(void)setAttributedText:(NSAttributedString *)attributedText {
     _attributedText = attributedText;
     _text = nil;
-    [self updateLayerArrayCountForAttributedString];
+    [self updateLayerArrayCount];
     _layerArray = [NSArray arrayWithArray:self.layerMutableArray];
 }
 
 /// 更新图层个数
--(void)updateLayerArrayCountForAttributedString {
+-(void)updateLayerArrayCount {
     NSInteger layerNum = self.layerMutableArray.count;
     NSInteger textLength = self.attributedText.length;
     if (layerNum > textLength) {
@@ -187,27 +110,6 @@
     [self refreshLayer:NO];
 }
 
--(void)updateLayerAttributedString {
-    for (int i = 0; i < self.attributedText.length && i < self.layerMutableArray.count; i++) {
-        CATextLayer *layer = [self.layerMutableArray objectAtIndex:i];
-        layer.string = [self.attributedText attributedSubstringFromRange:NSMakeRange(i, 1)];
-    }
-}
-
-/// 更新图层位置和大小
--(void)updateLayerBoundsForAttributedString {
-    for (int i = 0; i < self.layerMutableArray.count; i++) {
-        CATextLayer *layer = [self.layerMutableArray objectAtIndex:i];
-        CGSize size = ((NSAttributedString *)layer.string).size;
-        CGRect lastRect = [self layerRectWithIndex:i - 1];
-        CGRect bounds = CGRectMake(lastRect.origin.x + lastRect.size.width,
-                                   lastRect.origin.y + lastRect.size.height - size.height,
-                                   size.width,
-                                   size.height);
-        layer.frame = bounds;
-    }
-}
-
 #pragma mark - 刷新
 -(void)refreshLayer:(BOOL)animation {
     // 如果设置了路径对齐无效
@@ -221,16 +123,49 @@
         [CATransaction setDisableActions:YES];
     }
     
-    if (self.attributedText) {
-        [self updateLayerAttributedString];
-        [self updateLayerBoundsForAttributedString];
-    }
-    else {
-        [self updateLayerBounds];
-    }
+    [self updateLayer];
+    [self updateLayerBounds];
+
     
     if (!animation) {
         [CATransaction commit];
+    }
+}
+
+-(void)updateLayer {
+    for (int i = 0; i < self.attributedText.length && i < self.layerMutableArray.count; i++) {
+        CATextLayer *layer = [self.layerMutableArray objectAtIndex:i];
+        layer.string = [self.attributedText attributedSubstringFromRange:NSMakeRange(i, 1)];
+    }
+}
+
+/// 更新图层位置和大小
+-(void)updateLayerBounds {
+    for (int i = 0; i < self.layerMutableArray.count; i++) {
+        CATextLayer *layer = [self.layerMutableArray objectAtIndex:i];
+        CGSize size = ((NSAttributedString *)layer.string).size;
+        CGRect lastRect = [self layerRectWithIndex:i - 1];
+        CGRect bounds = CGRectMake(lastRect.origin.x + lastRect.size.width,
+                                   lastRect.origin.y + lastRect.size.height - size.height,
+                                   size.width,
+                                   size.height);
+        layer.frame = bounds;
+    }
+}
+
+/**
+ *  @brief  通过字符的索引获取对应的layer位置和大小
+ *  @param index 索引
+ *  @return 位置和大小，如果是index无效则返回CGRectMake(0, 0, 0, 0)
+ */
+-(CGRect)layerRectWithIndex:(NSInteger)index {
+    if (index < 0 || index >= self.layerMutableArray.count) {
+        CGPoint basePoint = [self basePoint];
+        return CGRectMake(basePoint.x, basePoint.y, 0, 0);
+    }
+    else {
+        CALayer *layer = [self.layerMutableArray objectAtIndex:index];
+        return layer.frame;
     }
 }
 

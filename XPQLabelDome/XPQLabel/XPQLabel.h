@@ -24,19 +24,19 @@ typedef enum : NSUInteger {
 
 @interface XPQLabel : UIView
 /**
- *  要显示的文本，和attributedText互诉，设置了text自动会将attributedText设为nil。
+ *  要显示的文本。
  */
 @property(nonatomic, copy) IBInspectable NSString *text;
 /**
- *  文本颜色
+ *  文本颜色。
  */
 @property(nonatomic, strong) IBInspectable UIColor *textColor;
 /**
- *  文本字体
+ *  文本字体。
  */
 @property(nonatomic, strong) UIFont *font;
 /**
- *  富文本，和text互诉，设置了attributedText自动会将text设为nil。
+ *  富文本。
  */
 @property(nonatomic, copy)   NSAttributedString *attributedText;
 /**

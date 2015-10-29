@@ -36,7 +36,7 @@
                         value:(id)[UIColor greenColor].CGColor
                         range:NSMakeRange(5, 2)];
     //改变this的字体，value必须是一个CTFontRef
-        [attriString addAttribute:(NSString *)kCTFontAttributeName value:(id)CFBridgingRelease(CTFontCreateWithName((CFStringRef)[UIFont boldSystemFontOfSize:12].fontName, 20, NULL)) range:NSMakeRange(8, 10)];
+    [attriString addAttribute:(NSString *)kCTFontAttributeName value:(id)CFBridgingRelease(CTFontCreateWithName((CFStringRef)[UIFont boldSystemFontOfSize:12].fontName, 20, NULL)) range:NSMakeRange(8, 10)];
     //给this加上下划线，value可以在指定的枚举中选择
     [attriString addAttribute:(NSString *)kCTUnderlineStyleAttributeName
                         value:(id)[NSNumber numberWithInt:kCTUnderlineStyleDouble]
