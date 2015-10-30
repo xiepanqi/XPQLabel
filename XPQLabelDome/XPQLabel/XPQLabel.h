@@ -40,7 +40,7 @@ typedef enum : NSUInteger {
  */
 @property(nonatomic, copy)   NSAttributedString *attributedText;
 /**
- *  字符层数组
+ *  字符层数组。可以通过此数组来控制各个字符来实现你想要的效果。
  */
 @property(nonatomic, strong, readonly) NSArray<CATextLayer*> *layerArray;
 /**

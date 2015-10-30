@@ -55,6 +55,8 @@ public:
      *  @param outBuffer 接收点坐标的容器。
      */
     void getPosTan(double precision, std::vector<XPQPoint> *outBuffer);
+    
+    void setNeedsUpdate();
     /**
      *  @brief  深度复制一条路径，包括后续路径。不过没有复制前面的路径，所以拷贝出来的对象是起点。
      *  @return 拷贝出来的对象。
@@ -64,15 +66,23 @@ public:
 protected:
     // 子类只需重写下面两个方法就行
     virtual double getSelfLength();
-    virtual void getSelfPosTan(double precision, std::vector<XPQPoint> *outBuffer);
+    virtual void updatePosTan(double precision);
     // 属性方法也可重写
-    virtual void setLastPath(XPQPath *lastPath);
-    virtual void setNextPath(XPQPath *nextPath);
+    virtual XPQPath* getLastPath() { return m_lastPath; };
+    virtual void setLastPath(XPQPath *lastPath) { m_lastPath = lastPath; setNeedsUpdate(); };
+    virtual XPQPath* getNextPath() { return m_nextPath; };
+    virtual void setNextPath(XPQPath *nextPath) { m_nextPath = nextPath; };
     
 public:
     /// 路径结束点
     XPQPoint m_endPoint;
-protected:
+    
+protected:    
+    bool m_needsUpdate;
+    double m_length;
+    std::vector<XPQPoint> *m_pointBuffer;
+    
+private:
     /// 上一条路径，如果为null则表示此对象是起点。
     XPQPath *m_lastPath;
     /// 下一条路径
@@ -87,7 +97,7 @@ public:
     
 protected:
     virtual double getSelfLength();
-    virtual void getSelfPosTan(double precision, std::vector<XPQPoint> *outBuffer);
+    virtual void updatePosTan(double precision);
 };
 
 #pragma mark - 圆
@@ -105,7 +115,7 @@ public:
 protected:
     virtual void setLastPath(XPQPath *lastPath);
     virtual double getSelfLength();
-    virtual void getSelfPosTan(double precision, std::vector<XPQPoint> *outBuffer);
+    virtual void updatePosTan(double precision);
     
 private:
     /// 旋转弧度
@@ -128,7 +138,7 @@ public:
 protected:
     virtual void setLastPath(XPQPath *lastPath);
     virtual double getSelfLength();
-    virtual void getSelfPosTan(double precision, std::vector<XPQPoint> *outBuffer);
+    virtual void updatePosTan(double precision);
     
 private:
     /// 锚点
