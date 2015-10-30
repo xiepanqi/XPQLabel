@@ -54,6 +54,12 @@
  *  @return 路径点数组。
  */
 -(NSArray<NSValue*> *)getPosTan:(CGFloat)precision;
+
+/**
+ *	@brief	强制刷新路径点坐标数组。
+ */
+-(void)setNeedsUpdate;
+
 /**
  *  @brief  深度复制一条路径。
  *  @return 拷贝出来的对象。

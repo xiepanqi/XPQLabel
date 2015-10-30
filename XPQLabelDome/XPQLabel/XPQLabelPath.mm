@@ -70,6 +70,10 @@
     return array;
 }
 
+-(void)setNeedsUpdate {
+    _pathCpp->setNeedsUpdate();
+}
+
 -(XPQLabelPath *)clone {
     XPQLabelPath *clone = [[XPQLabelPath alloc] init];
     clone->_pathCpp = _pathCpp->clone();

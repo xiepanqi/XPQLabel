@@ -48,7 +48,7 @@ bool XPQPath::appendPath(XPQPath *path)
     }
     endPath->setNextPath(path);
     path->setLastPath(endPath);
-    path->setNeedsUpdate();
+    path->m_needsUpdate = true;
     
     return true;
 }
@@ -61,7 +61,7 @@ bool XPQPath::removeFrontPath()
     
     this->m_lastPath->m_nextPath = nullptr;
     this->m_lastPath = nullptr;
-    this->setNeedsUpdate();
+    this->m_needsUpdate = true;
     
     return true;
 }
@@ -77,7 +77,7 @@ bool XPQPath::removeBackPath(bool release)
     }
     else {
         this->m_nextPath->m_lastPath = nullptr;
-        this->m_nextPath->setNeedsUpdate();
+        this->m_nextPath->m_needsUpdate = true;
     }
     
     this->m_nextPath = nullptr;
@@ -105,6 +105,7 @@ void XPQPath::getPosTan(double precision, std::vector<XPQPoint> *outBuffer)
             }
             m_pointBuffer = new std::vector<XPQPoint>(0);
         }
+        m_needsUpdate = false;
     }
     
     outBuffer->insert(outBuffer->end(), m_pointBuffer->begin(), m_pointBuffer->end());
@@ -116,7 +117,9 @@ void XPQPath::getPosTan(double precision, std::vector<XPQPoint> *outBuffer)
 
 void XPQPath::setNeedsUpdate()
 {
-    m_needsUpdate = true;
+    for (XPQPath *path = this; path != nullptr; path = getNextPath()) {
+        path->m_needsUpdate = true;
+    }
 }
 
 XPQPath* XPQPath::clone()
