@@ -424,6 +424,9 @@
                 break;
         }
         NSTimeInterval fixedTime = i * stepTime;
+        if (direction == XPQLabelAnimationDirectionRight) {
+            fixedTime = (self.layerArray.count - i) * stepTime;
+        }
         CAKeyframeAnimation *animation = [CAKeyframeAnimation animationWithKeyPath:@"position"];
         animation.values = @[[NSValue valueWithCGPoint:beginPoint],
                              [NSValue valueWithCGPoint:beginPoint],
@@ -483,6 +486,9 @@
                 break;
         }
         NSTimeInterval fixedTime = i * stepTime;
+        if (direction == XPQLabelAnimationDirectionRight) {
+            fixedTime = (self.layerArray.count - i) * stepTime;
+        }
         CAKeyframeAnimation *animation = [CAKeyframeAnimation animationWithKeyPath:@"position"];
         animation.values = @[[NSValue valueWithCGPoint:layer.position],
                              [NSValue valueWithCGPoint:layer.position],
@@ -495,7 +501,8 @@
         animation.fillMode = kCAFillModeForwards;
         
         [layer addAnimation:animation forKey:@"dropHideAnimation"];
-        if (i == self.layerArray.count - 1) {
+        if ((direction != XPQLabelAnimationDirectionRight && i == self.layerArray.count - 1)
+            || (direction == XPQLabelAnimationDirectionRight && i == 0)) {
             // 这里之所以不使用代理是为了防止其他分类重写了animationDidStop:finished造成BUG
             [self performSelector:@selector(dropHideAnimationEnd) withObject:nil afterDelay:duration + fixedTime];
         }

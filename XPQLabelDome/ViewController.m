@@ -138,11 +138,11 @@
 
 - (IBAction)onEnterAnmation1:(id)sender {
     [self.stringLabel startShowWithDirection:XPQLabelAnimationDirectionDown duration:0.5 bounce:0.0 stepTime:0.2];
-    [self.attributedLabel startShowWithDirection:XPQLabelAnimationDirectionLeft duration:0.5 bounce:0.0 stepTime:0.2];
+    [self.attributedLabel startShowWithDirection:XPQLabelAnimationDirectionRight duration:0.5 bounce:0.0 stepTime:0.2];
 }
 
 - (IBAction)onExitAnmation1:(id)sender {
-    [self.stringLabel startHideWithDirection:XPQLabelAnimationDirectionLeft duration:0.5 stepTime:0.2];
+    [self.stringLabel startHideWithDirection:XPQLabelAnimationDirectionRight duration:0.5 stepTime:0.2];
     [self.attributedLabel startHideWithDirection:XPQLabelAnimationDirectionDown duration:0.5 stepTime:0.2];
 }
 
