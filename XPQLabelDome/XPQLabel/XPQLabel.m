@@ -10,6 +10,8 @@
 
 @interface XPQLabel () {
     XPQLabelPath *_path;
+    
+    NSMutableArray<NSAttributedString *> *_stringArray;
 }
 @property (nonatomic, strong) NSMutableArray<CATextLayer *> *layerMutableArray;
 @end
@@ -46,6 +48,7 @@
     _font = [UIFont systemFontOfSize:17.0];
     _textHorizontalAlignment = XPQLabelHorizontalAlignmentLeft;
     _textVerticalAlignment = XPQLabelVerticalAlignmentCenter;
+    _stringArray = [NSMutableArray array];
 }
 
 #pragma mark -文本操作
@@ -75,14 +78,39 @@
 -(void)setAttributedText:(NSAttributedString *)attributedText {
     _attributedText = attributedText;
     _text = nil;
+    [self string2ArrayWithWrap];
+    
     [self updateLayerArrayCount];
     _layerArray = [NSArray arrayWithArray:self.layerMutableArray];
+}
+
+/**
+ *  @brief  把字符串在换行符处拆分
+ */
+-(void)string2ArrayWithWrap {
+    NSString *string = _attributedText.string;
+    NSRange range = NSMakeRange(0, 0);
+    do {
+        NSUInteger begin = range.location + range.length;
+        NSRange searchRange = NSMakeRange(begin, string.length - begin);
+        range = [string rangeOfString:@"\n" options:NSCaseInsensitiveSearch range:searchRange];
+        if (range.location == NSNotFound) {
+            [_stringArray addObject:[_attributedText attributedSubstringFromRange:searchRange]];
+        }
+        else {
+            [_stringArray addObject:[_attributedText attributedSubstringFromRange:NSMakeRange(begin, range.location - begin)]];
+        }
+    } while (range.location != NSNotFound);
 }
 
 /// 更新图层个数
 -(void)updateLayerArrayCount {
     NSInteger layerNum = self.layerMutableArray.count;
-    NSInteger textLength = self.attributedText.length;
+    NSInteger textLength = 0;
+    // 这样计算字符长度去掉了换行符
+    for (NSAttributedString *string in _stringArray) {
+        textLength += string.length;
+    }
     if (layerNum > textLength) {
         // 移除多余的layer
         NSRange removeRange = NSMakeRange(textLength, layerNum - textLength);
@@ -123,7 +151,7 @@
         [CATransaction setDisableActions:YES];
     }
     
-    [self updateLayer];
+    [self updateLayerString];
     [self updateLayerBounds];
 
     
@@ -132,38 +160,70 @@
     }
 }
 
--(void)updateLayer {
-    for (int i = 0; i < self.attributedText.length && i < self.layerMutableArray.count; i++) {
-        CATextLayer *layer = [self.layerMutableArray objectAtIndex:i];
-        layer.string = [self.attributedText attributedSubstringFromRange:NSMakeRange(i, 1)];
+/// 更新图层上的字符
+-(void)updateLayerString {
+    int layerIndex = 0;
+    for (NSAttributedString *string in _stringArray) {
+        for (int i = 0; i < string.length && i < _layerMutableArray.count; i++) {
+            _layerMutableArray[layerIndex++].string = [string attributedSubstringFromRange:NSMakeRange(i, 1)];
+        }
     }
 }
 
 /// 更新图层位置和大小
 -(void)updateLayerBounds {
-    int wrapIndex = 0;
-    for (int i = 0; i < self.layerMutableArray.count; i++) {
-        CATextLayer *layer = [self.layerMutableArray objectAtIndex:i];
-        CGSize size = ((NSAttributedString *)layer.string).size;
-        CGRect lastRect = [self layerRectWithIndex:i - 1];
-        CGRect bounds = CGRectMake(lastRect.origin.x + lastRect.size.width,
-                                   lastRect.origin.y + lastRect.size.height - size.height,
-                                   size.width,
-                                   size.height);
-        
-        if ([((NSAttributedString *)layer.string).string isEqual:@"\n"]) {
-            CGSize lineSize = [self.attributedText attributedSubstringFromRange:NSMakeRange(wrapIndex, i - wrapIndex)].size;
-            for (int j = 0; j < i; j++) {
-                CGPoint point = self.layerMutableArray[j].position;
-                point.y -= lineSize.height;
-                self.layerMutableArray[j].position = point;
-            }
-            bounds.origin.x -= lineSize.width;
+    int layerIndex = 0;
+    CGRect layerRect = CGRectMake(0, [self beginY], 0, 0);
+    for (NSAttributedString *string in _stringArray) {
+        layerRect.origin.x = [self lineBeginX:string];
+        layerRect.origin.y += layerRect.size.height;
+        layerRect.size.width = 0;
+        layerRect.size.height = string.size.height;
+        for (int i = 0; i < string.length; i++) {
+            CGSize layerSize = ((NSAttributedString *)_layerMutableArray[layerIndex].string).size;
+            layerRect.origin.x += layerRect.size.width;
+            layerRect.origin.y += (layerRect.size.height - layerSize.height);
+            layerRect.size.width = layerSize.width;
+            layerRect.size.height = layerSize.height;
             
-            wrapIndex = i + 1;
+            _layerMutableArray[layerIndex].frame = layerRect;
+            
+            layerIndex++;
         }
-        
-        layer.frame = bounds;
+    }
+}
+
+/// 行X起始坐标
+-(CGFloat)lineBeginX:(NSAttributedString *)string {
+    switch (_textHorizontalAlignment) {
+        case XPQLabelHorizontalAlignmentLeft:
+            return 0.0;
+            
+        case XPQLabelHorizontalAlignmentCenter:
+            return (self.bounds.size.width - string.size.width) / 2;
+            
+        case XPQLabelHorizontalAlignmentRight:
+            return self.bounds.size.width - string.size.width;
+            
+        default:
+            return 0.0;
+    }
+}
+
+/// 字符串Y起始坐标
+-(CGFloat)beginY {
+    switch (_textVerticalAlignment) {
+        case XPQLabelVerticalAlignmentUp:
+            return 0.0;
+            
+        case XPQLabelVerticalAlignmentCenter:
+            return (self.bounds.size.height - _attributedText.size.height) / 2;
+            
+        case XPQLabelVerticalAlignmentDown:
+            return self.bounds.size.height - _attributedText.size.height;
+            
+        default:
+            return 0.0;
     }
 }
 

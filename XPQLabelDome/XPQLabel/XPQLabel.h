@@ -74,7 +74,7 @@ typedef enum : NSUInteger {
 @interface XPQLabel (Path)
 
 /**
- *  字符路径
+ *  字符路径。路径将无视换行符(\n)。
  */
 @property(nonatomic) XPQLabelPath *path;
 
