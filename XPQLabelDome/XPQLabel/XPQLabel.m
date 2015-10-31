@@ -11,7 +11,7 @@
 @interface XPQLabel () {
     XPQLabelPath *_path;
 }
-@property (nonatomic, strong) NSMutableArray *layerMutableArray;
+@property (nonatomic, strong) NSMutableArray<CATextLayer *> *layerMutableArray;
 @end
 
 @implementation XPQLabel
@@ -141,6 +141,7 @@
 
 /// 更新图层位置和大小
 -(void)updateLayerBounds {
+    int wrapIndex = 0;
     for (int i = 0; i < self.layerMutableArray.count; i++) {
         CATextLayer *layer = [self.layerMutableArray objectAtIndex:i];
         CGSize size = ((NSAttributedString *)layer.string).size;
@@ -149,6 +150,19 @@
                                    lastRect.origin.y + lastRect.size.height - size.height,
                                    size.width,
                                    size.height);
+        
+        if ([((NSAttributedString *)layer.string).string isEqual:@"\n"]) {
+            CGSize lineSize = [self.attributedText attributedSubstringFromRange:NSMakeRange(wrapIndex, i - wrapIndex)].size;
+            for (int j = 0; j < i; j++) {
+                CGPoint point = self.layerMutableArray[j].position;
+                point.y -= lineSize.height;
+                self.layerMutableArray[j].position = point;
+            }
+            bounds.origin.x -= lineSize.width;
+            
+            wrapIndex = i + 1;
+        }
+        
         layer.frame = bounds;
     }
 }
@@ -171,8 +185,7 @@
 
 #pragma mark -对齐
 -(CGPoint)basePoint {
-    NSDictionary *textAttribute = @{NSFontAttributeName:self.font};
-    CGSize stringSize = (self.text == nil) ? self.attributedText.size : [self.text sizeWithAttributes:textAttribute];
+    CGSize stringSize = self.attributedText.size;
     CGPoint basePoint = CGPointZero;
     switch (self.textHorizontalAlignment) {
         case XPQLabelHorizontalAlignmentLeft: {

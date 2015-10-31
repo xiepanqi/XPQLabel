@@ -24,7 +24,7 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     
-    _stringLabel.text = @"这里是一串普通的文本文字。";
+    _stringLabel.text = @"这里是一串普通\n的文本文字。";
     
     NSMutableAttributedString *attriString = [[NSMutableAttributedString alloc] initWithString:@"this is attributed string."];
     //把this的字体颜色变为红色
