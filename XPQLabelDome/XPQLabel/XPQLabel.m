@@ -318,6 +318,24 @@
 
 -(void)setPath:(XPQLabelPath *)path rotate:(BOOL)rotate animation:(BOOL)animation {
     _path = path;
+    if (path == nil) {
+        if (!animation) {
+            [CATransaction begin];
+            // 关闭隐式动画
+            [CATransaction setDisableActions:YES];
+        }
+
+        for (CALayer *layer in _layerMutableArray) {
+            layer.transform = CATransform3DIdentity;
+        }
+        
+        if (!animation) {
+            [CATransaction commit];
+        }
+        [self refreshLayer:animation];
+        return;
+    }
+    
     NSArray<NSValue *> *pointArray = [_path getPosTan:1.0];
     double currentLength = 0.0;
     
