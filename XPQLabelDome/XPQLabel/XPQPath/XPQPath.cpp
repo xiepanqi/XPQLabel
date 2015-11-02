@@ -122,13 +122,13 @@ void XPQPath::setNeedsUpdate()
     }
 }
 
-XPQPath* XPQPath::clone()
+XPQPath* XPQPath::clone(bool needsUpdate)
 {
     XPQPath *clone = new XPQPath(m_endPoint);
-    clone->m_needsUpdate = m_needsUpdate;
+    clone->m_needsUpdate = needsUpdate | m_needsUpdate;
     clone->m_pointBuffer = new std::vector<XPQPoint>(*m_pointBuffer);
     if (m_nextPath != nullptr) {
-        clone->appendPath(m_nextPath->clone());
+        clone->appendPath(m_nextPath->clone(false));
     }
     return clone;
 }
@@ -159,6 +159,17 @@ void XPQPath::updatePosTan(double precision)
 XPQLine::XPQLine(XPQPoint point) : XPQPath(point)
 {
     
+}
+
+XPQLine* XPQLine::clone(bool needsUpdate)
+{
+    XPQLine *clone = new XPQLine(m_endPoint);
+    clone->m_needsUpdate = needsUpdate | m_needsUpdate;
+    clone->m_pointBuffer = new std::vector<XPQPoint>(*m_pointBuffer);
+    if (getNextPath() != nullptr) {
+        clone->appendPath(getNextPath()->clone(false));
+    }
+    return clone;
 }
 
 double XPQLine::getSelfLength()
@@ -203,13 +214,13 @@ XPQRound::XPQRound(XPQPoint centrePoint, double angle) : XPQPath(centrePoint)
     m_centrePoint = centrePoint;
 }
 
-XPQRound* XPQRound::clone()
+XPQRound* XPQRound::clone(bool needsUpdate)
 {
     XPQRound *clone = new XPQRound(m_centrePoint, m_angle);
-    clone->m_needsUpdate = m_needsUpdate;
+    clone->m_needsUpdate = needsUpdate | m_needsUpdate;
     clone->m_pointBuffer = new std::vector<XPQPoint>(*m_pointBuffer);
     if (getNextPath() != nullptr) {
-        clone->appendPath(getNextPath()->clone());
+        clone->appendPath(getNextPath()->clone(false));
     }
     return clone;
 }
@@ -272,13 +283,13 @@ XPQBezier::XPQBezier(XPQPoint anchorPoint, XPQPoint endPoint) : XPQPath(endPoint
     m_anchorPoint = anchorPoint;
 }
 
-XPQBezier* XPQBezier::clone()
+XPQBezier* XPQBezier::clone(bool needsUpdate)
 {
     XPQBezier *clone = new XPQBezier(m_anchorPoint, m_endPoint);
-    clone->m_needsUpdate = m_needsUpdate;
+    clone->m_needsUpdate = needsUpdate | m_needsUpdate;
     clone->m_pointBuffer = new std::vector<XPQPoint>(*m_pointBuffer);
     if (getNextPath() != nullptr) {
-        clone->appendPath(getNextPath()->clone());
+        clone->appendPath(getNextPath()->clone(false));
     }
     return clone;
 }

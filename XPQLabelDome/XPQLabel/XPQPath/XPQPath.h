@@ -59,9 +59,10 @@ public:
     void setNeedsUpdate();
     /**
      *  @brief  深度复制一条路径，包括后续路径。不过没有复制前面的路径，所以拷贝出来的对象是起点。
+     *  @param  needsUpdate 拷贝后是否需要刷新路径点数组。
      *  @return 拷贝出来的对象。
      */
-    virtual XPQPath *clone();
+    virtual XPQPath *clone(bool needsUpdate = true);
     
 protected:
     // 子类只需重写下面两个方法就行
@@ -94,6 +95,7 @@ class XPQLine : public XPQPath
 {
 public:
     XPQLine(XPQPoint point);
+    virtual XPQLine *clone(bool needsUpdate = true);
     
 protected:
     virtual double getSelfLength();
@@ -110,7 +112,7 @@ public:
      *  @param angle 路径旋转弧度，2π为一圈，正数为逆时针，负数为顺时针。
      */
     XPQRound(XPQPoint centrePoint, double angle);
-    virtual XPQRound *clone();
+    virtual XPQRound *clone(bool needsUpdate = true);
     
 protected:
     virtual void setLastPath(XPQPath *lastPath);
@@ -133,7 +135,7 @@ class XPQBezier : public XPQPath
 {
 public:
     XPQBezier(XPQPoint anchorPoint, XPQPoint endPoint);
-    virtual XPQBezier *clone();
+    virtual XPQBezier *clone(bool needsUpdate = true);
     
 protected:
     virtual void setLastPath(XPQPath *lastPath);
