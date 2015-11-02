@@ -53,6 +53,14 @@
     _pathCpp->appendPath(new XPQBezier({anchorPoint.x, anchorPoint.y}, {point.x, point.y}));
 }
 
+-(void)addCustomPoint:(NSArray *)customPoint {
+    std::vector<XPQPoint> pointVector(customPoint.count);
+    for (int i = 0; i < customPoint.count; i++) {
+        CGPoint point = ((NSValue *)customPoint[i]).CGPointValue;
+        pointVector[i] = {point.x, point.y};
+    }
+    _pathCpp->appendPath(new XPQCustomPath(&pointVector));
+}
 
 -(CGFloat)getLength {
     return _pathCpp->getLength();

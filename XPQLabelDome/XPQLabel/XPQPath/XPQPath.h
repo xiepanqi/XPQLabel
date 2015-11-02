@@ -21,7 +21,7 @@ struct XPQPoint {
 class XPQPath {
 public:
     XPQPath(XPQPoint point);
-    ~XPQPath();
+    virtual ~XPQPath();
     
     /**
      *  @brief  在路径链结尾附加一个路径链。必须要附加路径链起点才能调用成功。
@@ -55,7 +55,9 @@ public:
      *  @param outBuffer 接收点坐标的容器。
      */
     void getPosTan(double precision, std::vector<XPQPoint> *outBuffer);
-    
+    /**
+     *  @brief  路径点数组强制刷新。
+     */
     void setNeedsUpdate();
     /**
      *  @brief  深度复制一条路径，包括后续路径。不过没有复制前面的路径，所以拷贝出来的对象是起点。
@@ -63,6 +65,12 @@ public:
      *  @return 拷贝出来的对象。
      */
     virtual XPQPath *clone(bool needsUpdate = true);
+    
+    /**
+     *  @brief  计算两点之间的距离。
+     *  @return 点距。
+     */
+    double pointSpace(XPQPoint point1, XPQPoint point2);
     
 protected:
     // 子类只需重写下面两个方法就行
@@ -161,6 +169,24 @@ private:
     double m_A;
     double m_B;
     double m_C;
+};
+
+#pragma mark - 自定义曲线
+class XPQCustomPath : public XPQPath
+{
+public:
+    XPQCustomPath(std::vector<XPQPoint> *customPoint);
+    virtual ~XPQCustomPath();
+    virtual XPQCustomPath *clone(bool needsUpdate = true);
+    
+protected:    
+    virtual double getSelfLength();
+    virtual void updatePosTan(double precision);
+    
+private:
+    std::vector<XPQPoint> *m_customPoint;
+    
+    double calcSegmentPoint(XPQPoint point1, XPQPoint point2, double precision, double offset, std::vector<XPQPoint> *outBuffer);
 };
 
 #endif /* XPQLabelPath_h */
