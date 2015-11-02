@@ -9,6 +9,7 @@ XPQLabel能够只需简单的几句代码就让文本以各种轨迹显示和各
 
 ![UML](https://github.com/xiepanqi/XPQLabel/blob/master/domeImage/uml.png)
 
+
 ##语言
 主要语言为object-c和c++混编。其中object-c主要负责基本显示和操作，C++主要负责路径的计算。
 
@@ -36,6 +37,8 @@ label.text = @"这里是一串普通的文本文字。";
 
 
 ![设置文本](https://github.com/xiepanqi/XPQLabel/blob/master/domeImage/setText.png)
+
+
 ####设置富文本
 富文本只能通过代码设置
 ```ios
@@ -79,6 +82,8 @@ XPQLabelVerticalAlignmentDown,        // 垂直居下
 
 
 ![对齐效果图](https://github.com/xiepanqi/XPQLabel/blob/master/domeImage/alignmentDome.gif)
+
+
 ###路径
 只需设置这个属性就能让文字沿着指定路径显示。
 路径是XPQLabelPath对象，XPQLabelPath的使用也非常简单。
@@ -86,7 +91,11 @@ XPQLabelVerticalAlignmentDown,        // 垂直居下
 ```ios
 XPQLabelPath *path = [XPQLabelPath pathForBeginPoint:CGPointMake(10.0, 10.0)];
 ```
+
+
 再使用addLineToPoint:/addArcWithCentrePoint:angle:/addCurveToPoint:anchorPoint:来添加路径。
+
+
 ```ios
 // 添加直线
 [path addLineToPoint:CGPointMake(250.0, 50.0)];
@@ -106,12 +115,16 @@ label.path = path;
 
 
 ![路径效果图](https://github.com/xiepanqi/XPQLabel/blob/master/domeImage/pathDome.gif)
+
+
 ###手势轨迹
 这是一个很酷炫的功能（然而并没什么卵用）。
 设置gesturePathEnable为YES后用手在XPQLabel上滑动，文字会根据手指滑动的轨迹显示，效果图如下：
 
 
 ![手势轨迹效果图](https://github.com/xiepanqi/XPQLabel/blob/master/domeImage/gestureDome.gif)
+
+
 ###入场出场动画
 暂时只实现两种入场出场动画，调用函数分别为
 startShowWithDirection:duration:bounce:stepTime:
@@ -119,6 +132,8 @@ startHideWithDirection:duration:stepTime:
 
 
 ![动画1](https://github.com/xiepanqi/XPQLabel/blob/master/domeImage/animationDome1.gif)
+
+
 startFixedShowWithTransform: duration:stepTime:
 startFixedHideWithTransform:duration:stepTime:
 
