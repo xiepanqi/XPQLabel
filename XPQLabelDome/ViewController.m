@@ -157,4 +157,9 @@
     [self.stringLabel startFixedHideWithTransform:&transform duration:1.0 stepTime:0.1];
     [self.attributedLabel startFixedHideWithTransform:&transform duration:1.0 stepTime:0.1];
 }
+
+- (IBAction)gestureSwitchChanged:(UISwitch *)sender {
+    self.stringLabel.gesturePathEnable = sender.isOn;
+    self.attributedLabel.gesturePathEnable = sender.isOn;
+}
 @end
