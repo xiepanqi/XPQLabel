@@ -2,33 +2,114 @@
 让你的文字动起来！！！
 让你的文字随路径轨迹办法！！！
 
-## 效果图
-![Flipboard playing multiple GIFs](https://github.com/xiepanqi/XPQLabel/blob/master/dome.gif)
-(图片较大，加载过程请耐心等待)
+XPQLabel能够只需简单的几句代码就让文本以各种轨迹显示和各种酷炫的动画效果。
 
-## 类说明
-有2个OC类（XPQLabel/XPQLabelPath）和4个C++类(XPQPath/XPQLine/XPQRound/XPQBezier)。
-### XPQLabel类
-该类在文本现实视图类，继承自UIView。实现原理是把字符串拆分成字符，然后创建对应数量的CATextLayer，每个CATextLayer中显示一个字符。通过调整CATextLayer来实现各类动画和路径。使用的时候可以通过layerArray属性来访问所有的CATextLayer对象，可以灵活的实现各种想实现的动画。
-### XPQLabelPath类
-该类主要是把一段路径转换成点坐标数组，让XPQLabel类中的文本根据点坐标位置现实。
-目前路径暂时只支持直线、圆曲线、贝塞尔曲线，暂不支持椭圆曲线（可能后面也支持不了，数学差是硬伤😢）。
-该类其实是对4个C++类(XPQPath/XPQLine/XPQRound/XPQBezier)的封装。在使用XPQLabel的时候并不需要直接使用后面4个C++类，只需调用该类就行。
+## UML
+![UML](https://github.com/xiepanqi/XPQLabel/blob/master/domeImage/uml.png)
 
-### XPQPath类
-该类是各路径类的基类。
-路径实现的思路是一条路径由n(n>=0)条子路径组成，并且所有路径都有起点和终点，而上一条子路径的终点与下一条路径的起点必定是重合的。经过一番深思熟虑之后决定每条子路径只需记录一个终点坐标就行，起点靠路径链路中的上一条路径的终点确定。如果上一条路径为空那就这点为整个路径的起点。
-### XPQLine类
-该类是直线类，继承自XPQPath。
-最简单的一个类，就不说了。
-### XPQRound类
-该类是圆曲线类，继承自XPQPath。
-确定一个圆的最低条件只需圆心和半径就行。因为起点以确定，所以我们只需传个圆心就可以求出半径从而确定这个圆。然后传一个圆曲线所占角度，就能得到需要的曲线，并求出终点。
-所以该类的构造函数是XPQRound(XPQPoint centrePoint, double angle)。
-### XPQBezier类
-该类是二次贝塞尔曲线类，继承自XPQPath。
-二次贝塞尔曲线需要三个点（起点、终点、锚点），起点已知，只需传终点和锚点。所以构造函数是XPQBezier(XPQPoint anchorPoint, XPQPoint endPoint)。
+##语言
+主要语言为object-c和c++混编。其中object-c主要负责基本显示和操作，C++主要负责路径的计算。
+
+##使用
+XPQLabel使用非常简单，只需三步就可以完成使用。
+###第一步，引入头文件
+把XPQLabel文件夹和其中的文件全部拖进工程。引入头文件，#import "XPQLabel.h"。
+###第二步，初始化
+####使用代码初始化
+```ios
+XPQLabel *label = [[XPQLabel alloc] init];
+```
+####可视化初始化
+只需先拖一个UIView到storyboard或者xib上，再Class属性设置成XPQLabel，然后在与某一对象关联就行。
+###第三步，设置文本
+####设置普通文本
+#####代码设置
+```ios
+label.font = [UIFont systemFontOfSize:18.0];
+label.textColor = [UIColor blackColor];
+label.text = @"这里是一串普通的文本文字。";
+```
+#####storyboard或者xib设置
+只需修改面板上的text属性和textColor属性，如下图：
+![设置文本](https://github.com/xiepanqi/XPQLabel/blob/master/domeImage/setText.png)
+####设置富文本
+富文本只能通过代码设置
+```ios
+NSMutableAttributedString *attriString = [[NSMutableAttributedString alloc] initWithString:@"this is attributed string."];
+//把this的字体颜色变为红色
+[attriString addAttribute:(NSString *)kCTForegroundColorAttributeName
+value:(id)[UIColor redColor].CGColor
+range:NSMakeRange(0, 4)];
+//把is变为绿色
+[attriString addAttribute:(NSString *)kCTForegroundColorAttributeName
+value:(id)[UIColor greenColor].CGColor
+range:NSMakeRange(5, 2)];
+//改变attributed的字体
+[attriString addAttribute:(NSString *)kCTFontAttributeName value:(id)CFBridgingRelease(CTFontCreateWithName((CFStringRef)[UIFont boldSystemFontOfSize:12].fontName, 20, NULL)) range:NSMakeRange(8, 10)];
+//给string加上下划线
+[attriString addAttribute:(NSString *)kCTUnderlineStyleAttributeName
+value:(id)[NSNumber numberWithInt:kCTUnderlineStyleDouble]
+range:NSMakeRange(19, 6)];
+
+label.attributedText = attriString;
+```
+
+##属性设置
+当然，经过上面三部还只能简单的显示，如果需要一些额外的效果就需要设置一些属性了。
+###文本对齐
+文本对齐有两个属性textHorizontalAlignment和textVerticalAlignment，从字面意思就可以看出两个属性分别的作用。这两个属性分别对应下面两个枚举：
+```ios
+typedef enum : NSUInteger {
+XPQLabelHorizontalAlignmentLeft,      // 左对齐
+XPQLabelHorizontalAlignmentCenter,    // 水平居中
+XPQLabelHorizontalAlignmentRight,     // 右对齐
+} XPQLabelHorizontalAlignment;
+
+typedef enum : NSUInteger {
+XPQLabelVerticalAlignmentUp,          // 垂直居上
+XPQLabelVerticalAlignmentCenter,      // 垂直居中
+XPQLabelVerticalAlignmentDown,        // 垂直居下
+} XPQLabelVerticalAlignment;
+```
+使用效果如下图：
+![对齐效果图](https://github.com/xiepanqi/XPQLabel/blob/master/domeImage/alignmentDome.gif)
+###路径
+只需设置这个属性就能让文字沿着指定路径显示。
+路径是XPQLabelPath对象，XPQLabelPath的使用也非常简单。
+先使用XPQLabelPath的pathForBeginPoint方法创建路径起点。
+```ios
+XPQLabelPath *path = [XPQLabelPath pathForBeginPoint:CGPointMake(10.0, 10.0)];
+```
+再使用addLineToPoint:/addArcWithCentrePoint:angle:/addCurveToPoint:anchorPoint:来添加路径。
+```ios
+// 添加直线
+[path addLineToPoint:CGPointMake(250.0, 50.0)];
+// 添加圆曲线
+[path addArcWithCentrePoint:CGPointMake(90.0, 70.0) angle:-M_PI];
+// 添加贝塞尔曲线
+[path addCurveToPoint:CGPointMake(300.0, 60.0) anchorPoint:CGPointMake(100.0, 0.0)];
+```
+最后再把路径赋值给path属性或者使用setPath:rotate:animation:方法
+```ios
+// 带旋转和动画
+label.path = path;
+// 旋转和动画可选择
+[label setPath:path rotate:rotate animation:animation];
+```
+效果图如下：
+![路径效果图](https://github.com/xiepanqi/XPQLabel/blob/master/domeImage/pathDome.gif)
+###手势轨迹
+这是一个很酷炫的功能（然而并没什么卵用）。
+设置gesturePathEnable为YES后用手在XPQLabel上滑动，文字会根据手指滑动的轨迹显示，效果图如下：
+![手势轨迹效果图](https://github.com/xiepanqi/XPQLabel/blob/master/domeImage/gestureDome.gif)
+###入场出场动画
+暂时只实现两种入场出场动画，调用函数分别为
+startShowWithDirection:duration:bounce:stepTime:
+startHideWithDirection:duration:stepTime:
+![动画1](https://github.com/xiepanqi/XPQLabel/blob/master/domeImage/animationDome1.gif)
+startFixedShowWithTransform: duration:stepTime:
+startFixedHideWithTransform:duration:stepTime:
+![动画2](https://github.com/xiepanqi/XPQLabel/blob/master/domeImage/animationDome2.gif)
 
 
-ps:关于路径类为什么要用C++实现？
-有三个原因：1.不用C++实现怎么体现我会C++这门语言呢😊。2.贝塞尔曲线相关计算量大，为了效率。（而且网上求解贝塞尔曲线只有C++代码，可以偷把懒）。3.因为这个类可以实现游戏中精灵沿路径匀速移动，而cocod2x只能用C++写。
+> **PS:** 如果感觉写的不错请star下，谢谢。
