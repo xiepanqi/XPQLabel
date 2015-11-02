@@ -13,7 +13,9 @@
     
     NSMutableArray<NSAttributedString *> *_stringArray;
     
+    /// 手势路径使能。
     BOOL _gesturePathEnable;
+    /// 手势路径点坐标数组。
     NSMutableArray *_gesturePointArray;
 }
 @property (nonatomic, strong) NSMutableArray<CATextLayer *> *layerMutableArray;
@@ -414,7 +416,7 @@
 }
 
 -(void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-    if (_gesturePathEnable && _gesturePointArray != nil) {
+    if (_gesturePathEnable && _gesturePointArray != nil && _gesturePointArray.count > 0) {
         XPQLabelPath *path = [XPQLabelPath pathForBeginPoint:((NSValue *)_gesturePointArray[0]).CGPointValue];
         [path addCustomPoint:_gesturePointArray];
         self.path = path;
