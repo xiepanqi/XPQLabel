@@ -71,6 +71,7 @@ typedef enum : NSUInteger {
 -(void)setTextVerticalAlignment:(XPQLabelVerticalAlignment)textVerticalAlignment animation:(BOOL)animation;
 @end
 
+#pragma mark - 路径分类
 @interface XPQLabel (Path)
 
 /**
@@ -80,6 +81,14 @@ typedef enum : NSUInteger {
 
 -(void)setPath:(XPQLabelPath *)path rotate:(BOOL)rotate animation:(BOOL)animation;
 @end
+
+
+#pragma mark - 手势滑动自定义路径分类
+
+@interface XPQLabel (gesturePath)
+@property (nonatomic, assign) BOOL gesturePathEnable;
+@end
+
 
 #pragma mark - 文本动画效果
 /**

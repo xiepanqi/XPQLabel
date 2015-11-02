@@ -12,6 +12,9 @@
     XPQLabelPath *_path;
     
     NSMutableArray<NSAttributedString *> *_stringArray;
+    
+    BOOL _gesturePathEnable;
+    NSMutableArray *_gesturePointArray;
 }
 @property (nonatomic, strong) NSMutableArray<CATextLayer *> *layerMutableArray;
 @end
@@ -384,6 +387,40 @@
 }
 @end
 
+
+@implementation XPQLabel (gesturePath)
+-(BOOL)gesturePathEnable {
+    return _gesturePathEnable;
+}
+
+-(void)setGesturePathEnable:(BOOL)gesturePathEnable {
+    _gesturePathEnable = gesturePathEnable;
+    if (gesturePathEnable == NO) {
+        _gesturePointArray = nil;
+    }
+}
+
+-(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    if (_gesturePathEnable) {
+        _gesturePointArray = [NSMutableArray array];
+    }
+}
+
+-(void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    if (_gesturePathEnable && _gesturePointArray != nil) {
+        CGPoint point = [touches.anyObject locationInView:self];
+        [_gesturePointArray addObject:[NSValue valueWithCGPoint:point]];
+    }
+}
+
+-(void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    if (_gesturePathEnable && _gesturePointArray != nil) {
+        XPQLabelPath *path = [XPQLabelPath pathForBeginPoint:((NSValue *)_gesturePointArray[0]).CGPointValue];
+        [path addCustomPoint:_gesturePointArray];
+        self.path = path;
+    }
+}
+@end
 
 @implementation XPQLabel (Animation)
 //TODO:设置路径后这个分类的动画表现都不好

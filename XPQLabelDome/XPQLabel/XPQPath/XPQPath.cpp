@@ -133,6 +133,13 @@ XPQPath* XPQPath::clone(bool needsUpdate)
     return clone;
 }
 
+double XPQPath::pointSpace(XPQPoint point1, XPQPoint point2)
+{
+    double xSpace = point1.x - point2.x;
+    double ySpace = point1.y - point2.y;
+    return sqrt(xSpace * xSpace + ySpace * ySpace);
+}
+
 double XPQPath::getSelfLength()
 {
     if (m_needsUpdate) {
@@ -179,9 +186,7 @@ double XPQLine::getSelfLength()
     }
     
     if (m_needsUpdate) {
-        double xStep = m_endPoint.x - getLastPath()->m_endPoint.x;
-        double yStep = m_endPoint.y - getLastPath()->m_endPoint.y;
-        m_length = sqrt(xStep * xStep + yStep * yStep);
+        m_length = pointSpace(m_endPoint, getLastPath()->m_endPoint);
     }
     
     return m_length;
@@ -236,9 +241,7 @@ void XPQRound::setLastPath(XPQPath *lastPath)
     }
     else
     {
-        double xStep = m_endPoint.x - getLastPath()->m_endPoint.x;
-        double yStep = m_endPoint.y - getLastPath()->m_endPoint.y;
-        m_radii = sqrt(xStep * xStep + yStep * yStep);
+        m_radii = pointSpace(m_endPoint, getLastPath()->m_endPoint);
         m_beginAngle = atan((lastPath->m_endPoint.x - m_centrePoint.x) / (lastPath->m_endPoint.y - m_centrePoint.y));
         m_endPoint.x = m_centrePoint.x + m_radii * sin(m_beginAngle + m_angle);
         m_endPoint.y = m_centrePoint.y + m_radii * cos(m_beginAngle + m_angle);
@@ -423,4 +426,92 @@ double XPQBezier::getBezierLength(double t)
     double temp6 = (m_B * m_B - 4 * m_A * m_C) * (temp3 - temp4);
     
     return (temp5 + temp6) / (8 * pow(m_A, 1.5));
+}
+
+
+#pragma mark - XPQCustomPath-----自定义曲线
+XPQCustomPath::XPQCustomPath(std::vector<XPQPoint> *customPoint) : XPQPath(*customPoint->end())
+{
+    m_customPoint = new std::vector<XPQPoint>(*customPoint);
+}
+
+XPQCustomPath::~XPQCustomPath()
+{
+    if (m_customPoint != nullptr) {
+        delete m_customPoint;
+    }
+}
+
+XPQCustomPath* XPQCustomPath::clone(bool needsUpdate)
+{
+    XPQCustomPath *clone = new XPQCustomPath(m_customPoint);
+    clone->m_needsUpdate = needsUpdate | m_needsUpdate;
+    clone->m_pointBuffer = new std::vector<XPQPoint>(*m_pointBuffer);
+    if (getNextPath() != nullptr) {
+        clone->appendPath(getNextPath()->clone(false));
+    }
+    return clone;
+}
+
+double XPQCustomPath::getSelfLength()
+{
+    if (m_needsUpdate) {
+        if (m_customPoint == nullptr || m_customPoint->size() == 0) {
+            m_length = 0.0;
+        }
+        else {
+            if (getLastPath() == nullptr) {
+                m_length = 0.0;
+            }
+            else {
+                m_length = pointSpace(getLastPath()->m_endPoint, (*m_customPoint)[0]);
+            }
+            
+            for (int i = 1; i < m_customPoint->size(); i++) {
+                m_length += pointSpace((*m_customPoint)[i - 1], (*m_customPoint)[i]);
+            }
+        }
+    }
+    
+    return m_length;
+}
+
+void XPQCustomPath::updatePosTan(double precision)
+{
+    // 重新精确大小分配outBuffer的内存，提升内存使用率
+    if (m_pointBuffer == nullptr) {
+        m_pointBuffer = new std::vector<XPQPoint>();
+    }
+    else {
+        m_pointBuffer->clear();
+    }
+    
+    if (m_customPoint != nullptr && m_customPoint->size() > 0) {
+        double offset = 0.0;
+        if (getLastPath() != nullptr) {
+            offset = calcSegmentPoint(getLastPath()->m_endPoint, (*m_customPoint)[0], precision, offset, m_pointBuffer);
+        }
+        for (int i = 1; i < m_customPoint->size(); i++) {
+            offset = calcSegmentPoint((*m_customPoint)[i - 1], (*m_customPoint)[i], precision, offset, m_pointBuffer);
+        }
+    }    
+}
+
+double XPQCustomPath::calcSegmentPoint(XPQPoint point1, XPQPoint point2, double precision, double offset, std::vector<XPQPoint> *outBuffer)
+{
+    _LIBCPP_ASSERT(offset < precision, "偏移值 > 精度值");
+    double length = pointSpace(point1, point2);
+    if (length + offset < precision) {
+        return length + offset;
+    }
+    
+    double xSpace = point2.x - point1.x;
+    double ySpace = point2.y - point1.y;
+    double calcLength = 0.0;
+    for (calcLength = precision - offset; calcLength < length; calcLength += precision) {
+        double scale = calcLength / length;
+        XPQPoint point = {point1.x + xSpace * scale, point1.y + ySpace * scale};
+        outBuffer->push_back(point);
+    }
+    return length - (calcLength - precision);
 }

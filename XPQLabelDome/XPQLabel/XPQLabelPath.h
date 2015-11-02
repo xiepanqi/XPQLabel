@@ -42,7 +42,11 @@
  *  @param anchorPoint 锚点。
  */
 -(void)addCurveToPoint:(CGPoint)point anchorPoint:(CGPoint)anchorPoint;
-
+/**
+ *  @brief  添加自定义曲线。
+ *  @param customPoint 自定义曲线点坐标数组。
+ */
+-(void)addCustomPoint:(NSArray *)customPoint;
 /**
  *  @brief  获取路径长度。
  *  @return 路径长度。
