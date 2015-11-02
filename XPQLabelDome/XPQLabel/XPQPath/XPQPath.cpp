@@ -513,5 +513,5 @@ double XPQCustomPath::calcSegmentPoint(XPQPoint point1, XPQPoint point2, double 
         XPQPoint point = {point1.x + xSpace * scale, point1.y + ySpace * scale};
         outBuffer->push_back(point);
     }
-    return calcLength - precision;
+    return length - (calcLength - precision);
 }
