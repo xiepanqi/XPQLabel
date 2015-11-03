@@ -21,6 +21,7 @@ struct XPQPoint {
 class XPQPath {
 public:
     XPQPath(XPQPoint point);
+    XPQPath(XPQPath *other);
     virtual ~XPQPath();
     
     /**
@@ -64,7 +65,7 @@ public:
      *  @param  needsUpdate 拷贝后是否需要刷新路径点数组。
      *  @return 拷贝出来的对象。
      */
-    virtual XPQPath *clone(bool needsUpdate = true);
+    virtual XPQPath *clone(bool needsUpdate = true) = 0;
     
     /**
      *  @brief  计算两点之间的距离。
@@ -72,23 +73,24 @@ public:
      */
     double pointSpace(XPQPoint point1, XPQPoint point2);
     
+    XPQPoint getEndPoint() {return m_endPoint;};
+    void setEndPoint(XPQPoint endPoint) {m_endPoint = endPoint; setNeedsUpdate();};
+    
 protected:
     // 子类只需重写下面两个方法就行
-    virtual double getSelfLength();
-    virtual void updatePosTan(double precision);
+    virtual double getSelfLength() = 0;
+    virtual void updatePosTan(double precision) = 0;
     // 属性方法也可重写
     virtual XPQPath* getLastPath() { return m_lastPath; };
     virtual void setLastPath(XPQPath *lastPath) { m_lastPath = lastPath; setNeedsUpdate(); };
     virtual XPQPath* getNextPath() { return m_nextPath; };
     virtual void setNextPath(XPQPath *nextPath) { m_nextPath = nextPath; };
     
-public:
-    /// 路径结束点
-    XPQPoint m_endPoint;
-    
-protected:    
+protected:
     bool m_needsUpdate;
     double m_length;
+    /// 路径结束点
+    XPQPoint m_endPoint;
     std::vector<XPQPoint> *m_pointBuffer;
     
 private:
@@ -96,6 +98,18 @@ private:
     XPQPath *m_lastPath;
     /// 下一条路径
     XPQPath *m_nextPath;
+};
+
+#pragma mark - 点
+class XPQPointPath : public XPQPath
+{
+public:
+    XPQPointPath(XPQPoint point);
+    virtual XPQPointPath *clone(bool needsUpdate = true);
+    
+protected:
+    virtual double getSelfLength();
+    virtual void updatePosTan(double precision);
 };
 
 #pragma mark - 直线

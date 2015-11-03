@@ -122,16 +122,16 @@ void XPQPath::setNeedsUpdate()
     }
 }
 
-XPQPath* XPQPath::clone(bool needsUpdate)
-{
-    XPQPath *clone = new XPQPath(m_endPoint);
-    clone->m_needsUpdate = needsUpdate | m_needsUpdate;
-    clone->m_pointBuffer = new std::vector<XPQPoint>(*m_pointBuffer);
-    if (m_nextPath != nullptr) {
-        clone->appendPath(m_nextPath->clone(false));
-    }
-    return clone;
-}
+//XPQPath* XPQPath::clone(bool needsUpdate)
+//{
+//    XPQPath *clone = new XPQPath(m_endPoint);
+//    clone->m_needsUpdate = needsUpdate | m_needsUpdate;
+//    clone->m_pointBuffer = new std::vector<XPQPoint>(*m_pointBuffer);
+//    if (m_nextPath != nullptr) {
+//        clone->appendPath(m_nextPath->clone(false));
+//    }
+//    return clone;
+//}
 
 double XPQPath::pointSpace(XPQPoint point1, XPQPoint point2)
 {
@@ -140,26 +140,57 @@ double XPQPath::pointSpace(XPQPoint point1, XPQPoint point2)
     return sqrt(xSpace * xSpace + ySpace * ySpace);
 }
 
-double XPQPath::getSelfLength()
+//double XPQPath::getSelfLength()
+//{
+//    if (m_needsUpdate) {
+//        m_length = 0.0;
+//    }
+//    return m_length;
+//}
+//
+//void XPQPath::updatePosTan(double precision)
+//{
+//    if (m_pointBuffer != nullptr) {
+//        delete m_pointBuffer;
+//    }
+//    
+//    
+//    if (m_lastPath != nullptr) {
+//        m_pointBuffer = new std::vector<XPQPoint>(1);
+//        (*m_pointBuffer)[0].x = getLastPath()->m_endPoint.x;
+//        (*m_pointBuffer)[0].y = getLastPath()->m_endPoint.y;
+//    }
+//}
+
+
+#pragma mark - XPQPointPath-----点
+XPQPointPath::XPQPointPath(XPQPoint point) : XPQPath(point)
 {
-    if (m_needsUpdate) {
-        m_length = 0.0;
-    }
-    return m_length;
+    
 }
 
-void XPQPath::updatePosTan(double precision)
+XPQPointPath* XPQPointPath::clone(bool needsUpdate)
 {
-    if (m_pointBuffer != nullptr) {
-        delete m_pointBuffer;
+    XPQPointPath *clone = new XPQPointPath(m_endPoint);
+    clone->m_needsUpdate = needsUpdate | m_needsUpdate;
+    clone->m_pointBuffer = new std::vector<XPQPoint>(*m_pointBuffer);
+    if (getNextPath() != nullptr) {
+        clone->appendPath(getNextPath()->clone(false));
     }
-    
-    
-    if (m_lastPath != nullptr) {
+    return clone;
+}
+
+double XPQPointPath::getSelfLength()
+{
+    return 0.0;
+}
+
+void XPQPointPath::updatePosTan(double precision)
+{
+    if (m_pointBuffer == nullptr) {
         m_pointBuffer = new std::vector<XPQPoint>(1);
-        (*m_pointBuffer)[0].x = getLastPath()->m_endPoint.x;
-        (*m_pointBuffer)[0].y = getLastPath()->m_endPoint.y;
     }
+    (*m_pointBuffer)[0] = m_endPoint;
 }
 
 #pragma mark - XPQLinePath-----直线
@@ -186,7 +217,7 @@ double XPQLinePath::getSelfLength()
     }
     
     if (m_needsUpdate) {
-        m_length = pointSpace(m_endPoint, getLastPath()->m_endPoint);
+        m_length = pointSpace(m_endPoint, getLastPath()->getEndPoint());
     }
     
     return m_length;
@@ -196,8 +227,8 @@ void XPQLinePath::updatePosTan(double precision)
 {
     double length = getSelfLength();
     int pointCount = static_cast<int>(length / precision);
-    double xSpike = (m_endPoint.x - getLastPath()->m_endPoint.x) / length * precision;
-    double ySpike = (m_endPoint.y - getLastPath()->m_endPoint.y) / length * precision;
+    double xSpike = (m_endPoint.x - getLastPath()->getEndPoint().x) / length * precision;
+    double ySpike = (m_endPoint.y - getLastPath()->getEndPoint().y) / length * precision;
     
     // 重新精确大小分配outBuffer的内存，提升内存使用率
     if (m_pointBuffer != nullptr) {
@@ -206,8 +237,8 @@ void XPQLinePath::updatePosTan(double precision)
     m_pointBuffer = new std::vector<XPQPoint>(pointCount);
     
     for (int i = 0; i < pointCount; i++) {
-        (*m_pointBuffer)[i].x = getLastPath()->m_endPoint.x + i * xSpike;
-        (*m_pointBuffer)[i].y = getLastPath()->m_endPoint.y + i * ySpike;
+        (*m_pointBuffer)[i].x = getLastPath()->getEndPoint().x + i * xSpike;
+        (*m_pointBuffer)[i].y = getLastPath()->getEndPoint().y + i * ySpike;
     }
 }
 
@@ -241,8 +272,8 @@ void XPQRoundPath::setLastPath(XPQPath *lastPath)
     }
     else
     {
-        m_radii = pointSpace(m_endPoint, getLastPath()->m_endPoint);
-        m_beginAngle = atan((lastPath->m_endPoint.x - m_centrePoint.x) / (lastPath->m_endPoint.y - m_centrePoint.y));
+        m_radii = pointSpace(m_endPoint, getLastPath()->getEndPoint());
+        m_beginAngle = atan((lastPath->getEndPoint().x - m_centrePoint.x) / (lastPath->getEndPoint().y - m_centrePoint.y));
         m_endPoint.x = m_centrePoint.x + m_radii * sin(m_beginAngle + m_angle);
         m_endPoint.y = m_centrePoint.y + m_radii * cos(m_beginAngle + m_angle);
     }
@@ -305,10 +336,10 @@ void XPQBezierPath::setLastPath(XPQPath *lastPath)
         
     }
     else {
-        m_ax = lastPath->m_endPoint.x - 2 * m_anchorPoint.x + m_endPoint.x;
-        m_ay = lastPath->m_endPoint.y - 2 * m_anchorPoint.y + m_endPoint.y;
-        m_bx = 2 * m_anchorPoint.x - 2 * lastPath->m_endPoint.x;
-        m_by = 2 * m_anchorPoint.y - 2 * lastPath->m_endPoint.y;
+        m_ax = lastPath->getEndPoint().x - 2 * m_anchorPoint.x + m_endPoint.x;
+        m_ay = lastPath->getEndPoint().y - 2 * m_anchorPoint.y + m_endPoint.y;
+        m_bx = 2 * m_anchorPoint.x - 2 * lastPath->getEndPoint().x;
+        m_by = 2 * m_anchorPoint.y - 2 * lastPath->getEndPoint().y;
         
         m_A = 4 * (m_ax * m_ax + m_ay * m_ay);
         m_B = 4 * (m_ax * m_bx + m_ay * m_by);
@@ -361,10 +392,10 @@ void XPQBezierPath::updatePosTan(double precision)
         t = invertLength(t, l);
         
         //根据贝塞尔曲线函数，求得取得此时的x,y坐标
-        (*m_pointBuffer)[i].x = (1 - t) * (1 - t) * getLastPath()->m_endPoint.x
+        (*m_pointBuffer)[i].x = (1 - t) * (1 - t) * getLastPath()->getEndPoint().x
         + 2 * (1 - t) * t * m_anchorPoint.x
         + t * t * m_endPoint.x;
-        (*m_pointBuffer)[i].y = (1 - t) * (1 - t) * getLastPath()->m_endPoint.y
+        (*m_pointBuffer)[i].y = (1 - t) * (1 - t) * getLastPath()->getEndPoint().y
         + 2 * (1 - t) * t * m_anchorPoint.y
         + t * t * m_endPoint.y;
     }
@@ -464,7 +495,7 @@ double XPQCustomPath::getSelfLength()
                 m_length = 0.0;
             }
             else {
-                m_length = pointSpace(getLastPath()->m_endPoint, (*m_customPoint)[0]);
+                m_length = pointSpace(getLastPath()->getEndPoint(), (*m_customPoint)[0]);
             }
             
             for (int i = 1; i < m_customPoint->size(); i++) {
@@ -489,7 +520,7 @@ void XPQCustomPath::updatePosTan(double precision)
     if (m_customPoint != nullptr && m_customPoint->size() > 0) {
         double offset = 0.0;
         if (getLastPath() != nullptr) {
-            offset = calcSegmentPoint(getLastPath()->m_endPoint, (*m_customPoint)[0], precision, offset, m_pointBuffer);
+            offset = calcSegmentPoint(getLastPath()->getEndPoint(), (*m_customPoint)[0], precision, offset, m_pointBuffer);
         }
         for (int i = 1; i < m_customPoint->size(); i++) {
             offset = calcSegmentPoint((*m_customPoint)[i - 1], (*m_customPoint)[i], precision, offset, m_pointBuffer);

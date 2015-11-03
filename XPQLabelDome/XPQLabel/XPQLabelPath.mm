@@ -18,15 +18,14 @@
 -(instancetype)init {
     self = [super init];
     if (self) {
-        _pathCpp = new XPQPath({0.0, 0.0});
+        _pathCpp = new XPQPointPath({0.0, 0.0});
     }
     return self;
 }
 
 +(instancetype)pathForBeginPoint:(CGPoint)point {
     XPQLabelPath *path = [[XPQLabelPath alloc] init];
-    path->_pathCpp->m_endPoint.x = point.x;
-    path->_pathCpp->m_endPoint.y = point.y;
+    path->_pathCpp->setEndPoint({point.x, point.y});
     return path;
 }
 
@@ -37,8 +36,7 @@
 }
 
 -(void)moveBeginPoint:(CGPoint)point {
-    _pathCpp->m_endPoint.x = point.x;
-    _pathCpp->m_endPoint.y = point.y;
+    _pathCpp->setEndPoint({point.x, point.y});
 }
 
 -(void)addLineToPoint:(CGPoint)point {
