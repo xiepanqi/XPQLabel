@@ -99,11 +99,11 @@ private:
 };
 
 #pragma mark - 直线
-class XPQLine : public XPQPath
+class XPQLinePath : public XPQPath
 {
 public:
-    XPQLine(XPQPoint point);
-    virtual XPQLine *clone(bool needsUpdate = true);
+    XPQLinePath(XPQPoint point);
+    virtual XPQLinePath *clone(bool needsUpdate = true);
     
 protected:
     virtual double getSelfLength();
@@ -111,7 +111,7 @@ protected:
 };
 
 #pragma mark - 圆
-class XPQRound : public XPQPath
+class XPQRoundPath : public XPQPath
 {
 public:
     /**
@@ -119,8 +119,8 @@ public:
      *  @param centrePoint 圆心。圆半径由圆心和上一条路径结束点共同决定，如果上一条路径为空则半径为0.
      *  @param angle 路径旋转弧度，2π为一圈，正数为逆时针，负数为顺时针。
      */
-    XPQRound(XPQPoint centrePoint, double angle);
-    virtual XPQRound *clone(bool needsUpdate = true);
+    XPQRoundPath(XPQPoint centrePoint, double angle);
+    virtual XPQRoundPath *clone(bool needsUpdate = true);
     
 protected:
     virtual void setLastPath(XPQPath *lastPath);
@@ -139,11 +139,11 @@ private:
 };
 
 #pragma mark - 贝塞尔曲线
-class XPQBezier : public XPQPath
+class XPQBezierPath : public XPQPath
 {
 public:
-    XPQBezier(XPQPoint anchorPoint, XPQPoint endPoint);
-    virtual XPQBezier *clone(bool needsUpdate = true);
+    XPQBezierPath(XPQPoint anchorPoint, XPQPoint endPoint);
+    virtual XPQBezierPath *clone(bool needsUpdate = true);
     
 protected:
     virtual void setLastPath(XPQPath *lastPath);

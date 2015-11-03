@@ -162,15 +162,15 @@ void XPQPath::updatePosTan(double precision)
     }
 }
 
-#pragma mark - XPQLine-----直线
-XPQLine::XPQLine(XPQPoint point) : XPQPath(point)
+#pragma mark - XPQLinePath-----直线
+XPQLinePath::XPQLinePath(XPQPoint point) : XPQPath(point)
 {
     
 }
 
-XPQLine* XPQLine::clone(bool needsUpdate)
+XPQLinePath* XPQLinePath::clone(bool needsUpdate)
 {
-    XPQLine *clone = new XPQLine(m_endPoint);
+    XPQLinePath *clone = new XPQLinePath(m_endPoint);
     clone->m_needsUpdate = needsUpdate | m_needsUpdate;
     clone->m_pointBuffer = new std::vector<XPQPoint>(*m_pointBuffer);
     if (getNextPath() != nullptr) {
@@ -179,7 +179,7 @@ XPQLine* XPQLine::clone(bool needsUpdate)
     return clone;
 }
 
-double XPQLine::getSelfLength()
+double XPQLinePath::getSelfLength()
 {
     if (getLastPath() == nullptr) {
         return 0.0;
@@ -192,7 +192,7 @@ double XPQLine::getSelfLength()
     return m_length;
 }
 
-void XPQLine::updatePosTan(double precision)
+void XPQLinePath::updatePosTan(double precision)
 {
     double length = getSelfLength();
     int pointCount = static_cast<int>(length / precision);
@@ -212,16 +212,16 @@ void XPQLine::updatePosTan(double precision)
 }
 
 
-#pragma mark - XPQRound-----圆
-XPQRound::XPQRound(XPQPoint centrePoint, double angle) : XPQPath(centrePoint)
+#pragma mark - XPQRoundPath-----圆
+XPQRoundPath::XPQRoundPath(XPQPoint centrePoint, double angle) : XPQPath(centrePoint)
 {
     m_angle = angle;
     m_centrePoint = centrePoint;
 }
 
-XPQRound* XPQRound::clone(bool needsUpdate)
+XPQRoundPath* XPQRoundPath::clone(bool needsUpdate)
 {
-    XPQRound *clone = new XPQRound(m_centrePoint, m_angle);
+    XPQRoundPath *clone = new XPQRoundPath(m_centrePoint, m_angle);
     clone->m_needsUpdate = needsUpdate | m_needsUpdate;
     clone->m_pointBuffer = new std::vector<XPQPoint>(*m_pointBuffer);
     if (getNextPath() != nullptr) {
@@ -230,7 +230,7 @@ XPQRound* XPQRound::clone(bool needsUpdate)
     return clone;
 }
 
-void XPQRound::setLastPath(XPQPath *lastPath)
+void XPQRoundPath::setLastPath(XPQPath *lastPath)
 {
     XPQPath::setLastPath(lastPath);
     if (lastPath == nullptr) {
@@ -248,7 +248,7 @@ void XPQRound::setLastPath(XPQPath *lastPath)
     }
 }
 
-double XPQRound::getSelfLength()
+double XPQRoundPath::getSelfLength()
 {
     if (getLastPath() == nullptr) {
         return 0.0;
@@ -261,7 +261,7 @@ double XPQRound::getSelfLength()
     return m_length;
 }
 
-void XPQRound::updatePosTan(double precision)
+void XPQRoundPath::updatePosTan(double precision)
 {
     double length = getSelfLength();
     int pointCount = static_cast<int>(length / precision);
@@ -280,15 +280,15 @@ void XPQRound::updatePosTan(double precision)
 }
 
 
-#pragma mark - XPQBezier-----贝塞尔曲线
-XPQBezier::XPQBezier(XPQPoint anchorPoint, XPQPoint endPoint) : XPQPath(endPoint)
+#pragma mark - XPQBezierPath-----贝塞尔曲线
+XPQBezierPath::XPQBezierPath(XPQPoint anchorPoint, XPQPoint endPoint) : XPQPath(endPoint)
 {
     m_anchorPoint = anchorPoint;
 }
 
-XPQBezier* XPQBezier::clone(bool needsUpdate)
+XPQBezierPath* XPQBezierPath::clone(bool needsUpdate)
 {
-    XPQBezier *clone = new XPQBezier(m_anchorPoint, m_endPoint);
+    XPQBezierPath *clone = new XPQBezierPath(m_anchorPoint, m_endPoint);
     clone->m_needsUpdate = needsUpdate | m_needsUpdate;
     clone->m_pointBuffer = new std::vector<XPQPoint>(*m_pointBuffer);
     if (getNextPath() != nullptr) {
@@ -297,7 +297,7 @@ XPQBezier* XPQBezier::clone(bool needsUpdate)
     return clone;
 }
 
-void XPQBezier::setLastPath(XPQPath *lastPath)
+void XPQBezierPath::setLastPath(XPQPath *lastPath)
 {
     XPQPath::setLastPath(lastPath);
     
@@ -322,7 +322,7 @@ void XPQBezier::setLastPath(XPQPath *lastPath)
  
  L(t_) = ((2*Sqrt[A]*(2*A*t*Sqrt[C + t*(B + A*t)] + B*(-Sqrt[C] + Sqrt[C + t*(B + A*t)])) + (B^2 - 4*A*C) (Log[B + 2*Sqrt[A]*Sqrt[C]] - Log[B + 2*A*t + 2 Sqrt[A]*Sqrt[C + t*(B + A*t)]])) /(8* A^(3/2)));
  */
-double XPQBezier::getSelfLength()
+double XPQBezierPath::getSelfLength()
 {
     if (getLastPath() == nullptr) {
         return 0.0;
@@ -342,7 +342,7 @@ double XPQBezier::getSelfLength()
     return m_length;
 }
 
-void XPQBezier::updatePosTan(double precision)
+void XPQBezierPath::updatePosTan(double precision)
 {
     double length = getSelfLength();
     int pointCount = static_cast<int>(length / precision);
@@ -374,7 +374,7 @@ void XPQBezier::updatePosTan(double precision)
 /*
  X(n+1) = Xn - F(Xn)/F'(Xn)
  */
-double XPQBezier::invertLength(double t, double l)
+double XPQBezierPath::invertLength(double t, double l)
 {
     double t1 = t, t2;
     
@@ -392,7 +392,7 @@ double XPQBezier::invertLength(double t, double l)
 /*
  s(t_) = Sqrt[A*t*t+B*t+C]
  */
-double XPQBezier::speed(double t)
+double XPQBezierPath::speed(double t)
 {
     if (t > 1.0) {
         t = 1.0;
@@ -409,7 +409,7 @@ double XPQBezier::speed(double t)
  
  L(t_) = ((2*Sqrt[A]*(2*A*t*Sqrt[C + t*(B + A*t)] + B*(-Sqrt[C] + Sqrt[C + t*(B + A*t)])) + (B^2 - 4*A*C) (Log[B + 2*Sqrt[A]*Sqrt[C]] - Log[B + 2*A*t + 2 Sqrt[A]*Sqrt[C + t*(B + A*t)]])) /(8* A^(3/2)));
  */
-double XPQBezier::getBezierLength(double t)
+double XPQBezierPath::getBezierLength(double t)
 {
     if (t > 1.0) {
         t = 1.0;

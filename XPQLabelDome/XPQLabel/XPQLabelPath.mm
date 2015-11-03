@@ -42,15 +42,15 @@
 }
 
 -(void)addLineToPoint:(CGPoint)point {
-    _pathCpp->appendPath(new XPQLine({point.x, point.y}));
+    _pathCpp->appendPath(new XPQLinePath({point.x, point.y}));
 }
 
 -(void)addArcWithCentrePoint:(CGPoint)centrePoint angle:(CGFloat)angle {
-    _pathCpp->appendPath(new XPQRound({centrePoint.x, centrePoint.y}, angle));
+    _pathCpp->appendPath(new XPQRoundPath({centrePoint.x, centrePoint.y}, angle));
 }
 
 -(void)addCurveToPoint:(CGPoint)point anchorPoint:(CGPoint)anchorPoint {
-    _pathCpp->appendPath(new XPQBezier({anchorPoint.x, anchorPoint.y}, {point.x, point.y}));
+    _pathCpp->appendPath(new XPQBezierPath({anchorPoint.x, anchorPoint.y}, {point.x, point.y}));
 }
 
 -(void)addCustomPoint:(NSArray *)customPoint {
