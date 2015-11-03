@@ -4,10 +4,10 @@
 
 XPQLabel能够只需简单的几句代码就让文本以各种轨迹显示和各种酷炫的动画效果。
 
-## UML
+## 类继承关系
 
 
-![UML](https://github.com/xiepanqi/XPQLabel/blob/master/domeImage/uml.png)
+![UML](https://github.com/xiepanqi/XPQLabel/blob/master/domeImage/classDiagram.png)
 
 
 ##语言
