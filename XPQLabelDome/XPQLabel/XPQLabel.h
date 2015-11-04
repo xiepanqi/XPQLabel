@@ -69,6 +69,14 @@ typedef enum : NSUInteger {
  *  @param animation             YES-有动画效果，NO-无动画效果。
  */
 -(void)setTextVerticalAlignment:(XPQLabelVerticalAlignment)textVerticalAlignment animation:(BOOL)animation;
+/**
+ *  @brief  两个字符之间的间距。为0时是正常情况下间距，小于0则间距缩小，大于0间距则增加。
+ */
+@property(nonatomic, assign)CGFloat elementSpacing;
+/**
+ *  @brief  行之间的间距。为0时是正常情况下间距，小于0则间距缩小，大于0间距则增加。
+ */
+@property(nonatomic, assign)CGFloat rowSpacing;
 @end
 
 #pragma mark - 路径分类

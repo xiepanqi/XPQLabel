@@ -188,8 +188,8 @@
             CGSize layerSize = ((NSAttributedString *)_layerMutableArray[layerIndex].string).size;
             layerRect.origin.x += layerRect.size.width;
             layerRect.origin.y += (layerRect.size.height - layerSize.height);
-            layerRect.size.width = layerSize.width;
-            layerRect.size.height = layerSize.height;
+            layerRect.size.width = layerSize.width + _elementSpacing;
+            layerRect.size.height = layerSize.height + _rowSpacing;
             
             _layerMutableArray[layerIndex].frame = layerRect;
             
