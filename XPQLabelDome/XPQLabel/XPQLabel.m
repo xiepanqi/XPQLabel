@@ -132,8 +132,8 @@
         // 添加少了的layer
         while (layerNum < textLength) {
             CATextLayer *layer = [CATextLayer layer];
-            // 设置这个值让文字更清楚，0.0-1.0会让文字模糊化
-            layer.contentsScale = 2.0;
+            // 缩放因子
+            layer.contentsScale = [UIScreen mainScreen].scale;
             [self.layerMutableArray addObject:layer];
             [self.layer addSublayer:layer];
             layerNum++;
